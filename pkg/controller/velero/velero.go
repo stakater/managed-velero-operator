@@ -43,6 +43,12 @@ const (
 	azureCredsResourceGroupKey  = "AZURE_RESOURCE_GROUP"  // #nosec G101
 	azureCredsCloudKey          = "AZURE_CLOUD_NAME"      // #nosec G101
 
+	openstackIdentityEndpoint = "os_auth_url"
+	openstackUsername         = "os_username"
+	openstackPassword         = "os_password"
+	openstackTenantID         = "os_tenant_id"
+	openstackRegion           = "os_region"
+
 	veleroImageRegistry   = "docker.io/velero"
 	veleroImageRegistryCN = "registry.docker-cn.com/velero"
 
@@ -80,6 +86,8 @@ func (r *ReconcileVelero) provisionVelero(reqLogger logr.Logger, namespace strin
 			"storageAccount": instance.Status.Azure.StorageAccount,
 		}
 		bsl = veleroInstall.BackupStorageLocation(namespace, provider, instance.Status.Azure.StorageBucket.Name, "", locationConfig)
+	case configv1.OpenStackPlatformType:
+		bsl = veleroInstall.BackupStorageLocation(namespace, provider, instance.Status.OpenStack.StorageBucket.Name, "", locationConfig)
 	default:
 		return reconcile.Result{}, fmt.Errorf("unable to determine platform")
 	}
@@ -161,6 +169,8 @@ func (r *ReconcileVelero) provisionVelero(reqLogger logr.Logger, namespace strin
 		cr = gcpCredentialsRequest(namespace, credentialsRequestName)
 	case configv1.AzurePlatformType:
 		cr = azureCredentialsRequest(namespace, credentialsRequestName)
+	case configv1.OpenStackPlatformType:
+		cr = openstackCredentialsRequest(namespace, credentialsRequestName)
 	default:
 		return reconcile.Result{}, fmt.Errorf("unable to determine platform")
 	}
@@ -401,6 +411,35 @@ func azureCredentialsRequest(namespace string, name string) *minterv1.Credential
 	}
 }
 
+func openstackCredentialsRequest(namespace string, name string) *minterv1.CredentialsRequest {
+	codec, _ := minterv1.NewCodec()
+	provSpec, _ := codec.EncodeProviderSpec(
+		&minterv1.OpenStackProviderSpec{
+			TypeMeta: metav1.TypeMeta{
+				Kind: "OpenStackProviderSpec",
+			},
+		},
+	)
+
+	return &minterv1.CredentialsRequest{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+		},
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "CredentialsRequest",
+			APIVersion: minterv1.SchemeGroupVersion.String(),
+		},
+		Spec: minterv1.CredentialsRequestSpec{
+			SecretRef: corev1.ObjectReference{
+				Name:      name,
+				Namespace: namespace,
+			},
+			ProviderSpec: provSpec,
+		},
+	}
+}
+
 func gcpCredentialsRequest(namespace, name string) *minterv1.CredentialsRequest {
 	codec, _ := minterv1.NewCodec()
 	provSpec, _ := codec.EncodeProviderSpec(
@@ -487,6 +526,16 @@ func veleroDeployment(namespace string, platform configv1.PlatformType, veleroIm
 			veleroInstall.WithEnvFromSecretKey(azureCredsClientSecretKey, credentialsRequestName, ccoAzure.AzureClientSecret),
 			veleroInstall.WithEnvFromSecretKey(azureCredsResourceGroupKey, credentialsRequestName, ccoAzure.AzureResourceGroup),
 			veleroInstall.WithPlugins([]string{veleroImageRegistry + "/" + veleroAzureImageTag}),
+			veleroInstall.WithImage(veleroImageRegistry+"/"+veleroImageTag),
+		)
+	case configv1.OpenStackPlatformType:
+		deployment = veleroInstall.Deployment(namespace,
+			veleroInstall.WithEnvFromSecretKey(strings.ToUpper(openstackIdentityEndpoint), credentialsRequestName, openstackIdentityEndpoint),
+			veleroInstall.WithEnvFromSecretKey(strings.ToUpper(openstackUsername), credentialsRequestName, openstackUsername),
+			veleroInstall.WithEnvFromSecretKey(strings.ToUpper(openstackPassword), credentialsRequestName, openstackPassword),
+			veleroInstall.WithEnvFromSecretKey(strings.ToUpper(openstackTenantID), credentialsRequestName, openstackTenantID),
+			veleroInstall.WithEnvFromSecretKey(strings.ToUpper(openstackRegion), credentialsRequestName, openstackRegion),
+			@@@@
 			veleroInstall.WithImage(veleroImageRegistry+"/"+veleroImageTag),
 		)
 	}

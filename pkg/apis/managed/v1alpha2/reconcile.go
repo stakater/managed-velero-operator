@@ -41,6 +41,14 @@ func (i *VeleroInstall) StorageBucketReconcileRequired(platformType configv1.Pla
 			time.Since(i.Status.Azure.StorageBucket.LastSyncTimestamp.Time) > reconcilePeriod {
 			return true
 		}
+	case configv1.OpenStackPlatformType:
+		if i.Status.OpenStack.StorageContainer == "" ||
+			i.Status.OpenStack.StorageBucket.Name == "" ||
+			!i.Status.OpenStack.StorageBucket.Provisioned ||
+			i.Status.OpenStack.StorageBucket.LastSyncTimestamp.IsZero() ||
+			time.Since(i.Status.OpenStack.StorageBucket.LastSyncTimestamp.Time) > reconcilePeriod {
+			return true
+		}
 	}
 
 	return false

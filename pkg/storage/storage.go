@@ -9,6 +9,7 @@ import (
 	veleroInstallCR "github.com/openshift/managed-velero-operator/pkg/apis/managed/v1alpha2"
 	"github.com/openshift/managed-velero-operator/pkg/storage/azureblobservice"
 	"github.com/openshift/managed-velero-operator/pkg/storage/gcs"
+	"github.com/openshift/managed-velero-operator/pkg/storage/openstackobjectstorageservice"
 	"github.com/openshift/managed-velero-operator/pkg/storage/s3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -49,6 +50,13 @@ func NewDriver(cfg *configv1.InfrastructureStatus, client client.Client) (Driver
 		var err error
 
 		driver, err = azureblobservice.NewDriver(ctx, cfg, client)
+		if err != nil {
+			return nil, err
+		}
+	case configv1.OpenStackPlatformType:
+		var err error
+
+		driver, err = openstackobjectstorageservice.NewDriver(ctx, cfg, client)
 		if err != nil {
 			return nil, err
 		}

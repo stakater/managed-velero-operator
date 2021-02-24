@@ -87,4 +87,34 @@ func TestStorageBucketReconcileRequired(t *testing.T) {
 			}
 		}
 	}
+
+	for _, tc := range testcases {
+		t.Logf("Running scenario %q", tc.testName)
+
+		instance := &VeleroInstall{
+			Spec: VeleroInstallSpec{},
+			Status: VeleroInstallStatus{
+				OpenStack: &OpenStackVeleroInstallStatus{
+					StorageBucket: StorageBucket{
+						Name:        tc.bucketName,
+						Provisioned: tc.bucketProvisioned,
+					},
+				},
+			},
+		}
+
+		if !tc.timestamp.IsZero() {
+			instance.Status.OpenStack.StorageBucket.LastSyncTimestamp = &metav1.Time{Time: tc.timestamp}
+		}
+
+		reconcile := instance.StorageBucketReconcileRequired(configv1.OpenStackPlatformType, tc.reconcilePeriod)
+
+		if reconcile != tc.shouldReconcile {
+			if tc.shouldReconcile {
+				t.Errorf("did not reconcile when expecting one")
+			} else {
+				t.Errorf("reconciled when not expecting one")
+			}
+		}
+	}
 }

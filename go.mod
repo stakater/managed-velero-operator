@@ -25,6 +25,7 @@ require (
 	github.com/coreos/prometheus-operator v0.38.0
 	github.com/dchest/uniuri v0.0.0-20200228104902-7aecb25e1fe5
 	github.com/googleapis/google-cloud-go-testing v0.0.0-20191008195207-8e1d251e947d
+	github.com/gophercloud/gophercloud v0.15.0 // sdk for openstack cloud
 	github.com/operator-framework/operator-sdk v0.17.1
 	github.com/spf13/pflag v1.0.5
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d

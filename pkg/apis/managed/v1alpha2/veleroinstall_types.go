@@ -16,8 +16,10 @@ type VeleroInstallStatus struct {
 	AWS *AWSVeleroInstallStatus `json:"AWS,omitempty"`
 	// AWSVeleroInstallStatus contains status information specific to GCP
 	GCP *GCPVeleroInstallStatus `json:"GCP,omitempty"`
-	// AWSVeleroInstallStatus contains status information specific to Azure
+	// AzureVeleroInstallStatus contains status information specific to Azure
 	Azure *AzureVeleroInstallStatus `json:"Azure,omitempty"`
+	// OpenStackVeleroInstallStatus contains status information specific to Azure
+	OpenStack *OpenStackVeleroInstallStatus `json:"OpenStack,omitempty"`
 }
 
 // AWSVeleroInstallStatus contains status information specific to AWS
@@ -40,6 +42,15 @@ type AzureVeleroInstallStatus struct {
 	// StorageAccount contains details of the storage account for backups on Azure
 	StorageAccount string `json:"storageAccount,omitempty"`
 	// StorageBucket contains details of the storage bucket for backups on Azure
+	StorageBucket StorageBucket `json:"storageBucket,omitempty"`
+}
+
+// OpenStackVeleroInstallStatus contains status information specific to OpenStack
+// +k8s:openapi-gen=true
+type OpenStackVeleroInstallStatus struct {
+	// StorageContainer contains details of the storage container for backups in object on OpenStack
+	StorageContainer string `json:"storageAccount,omitempty"`
+	// StorageBucket contains details of the storage bucket for backups on OpenStack
 	StorageBucket StorageBucket `json:"storageBucket,omitempty"`
 }
 
@@ -101,6 +112,10 @@ func (i *VeleroInstall) InitializeStatus(platform configv1.PlatformType) {
 	case configv1.AzurePlatformType:
 		if i.Status.Azure == nil {
 			i.Status.Azure = &AzureVeleroInstallStatus{}
+		}
+	case configv1.OpenStackPlatformType:
+		if i.Status.OpenStack == nil {
+			i.Status.OpenStack = &OpenStackVeleroInstallStatus{}
 		}
 	}
 }

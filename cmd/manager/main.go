@@ -58,6 +58,7 @@ var supportedPlatforms = []configv1.PlatformType{
 	configv1.AWSPlatformType,
 	configv1.GCPPlatformType,
 	configv1.AzurePlatformType,
+	configv1.OpenStackPlatformType,
 }
 
 func printVersion() {
