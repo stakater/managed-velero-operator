@@ -75,9 +75,9 @@ func getOpenStackCredentials(kubeClient client.Client) (authURL string, username
 	if !ok {
 		return "", "", "", "", "", fmt.Errorf("os_tenant_id is missing for secret: '%v', namespace: '%v'", secret.Name, secret.Namespace)
 	}
-	region, ok = getStringFromSecret(secret, "os_region")
+	region, ok = getStringFromSecret(secret, "os_region_name")
 	if !ok {
-		return "", "", "", "", "", fmt.Errorf("os_region is missing for secret: '%v', namespace: '%v'", secret.Name, secret.Namespace)
+		return "", "", "", "", "", fmt.Errorf("os_region_name is missing for secret: '%v', namespace: '%v'", secret.Name, secret.Namespace)
 	}
 
 	return authURL, username, password, tenantID, region, nil

@@ -35,13 +35,17 @@ func NewDriver(ctx context.Context, cfg *configv1.InfrastructureStatus, kubeClie
 
 // GetPlatformType returns the platform type of this driver
 func (d *driver) GetPlatformType() configv1.PlatformType {
-	return configv1.AzurePlatformType
+	return configv1.OpenStackPlatformType
 }
 
 // CreateStorage attempts to create a Azure Blob Service Container with relevant tags
 func (d *driver) CreateStorage(reqLogger logr.Logger, instance *veleroInstallCR.VeleroInstall) error {
-
-	return nil // yet to be implemented
+	var err error
+	veleroContainerName := checkExistingContainer(d.Context, reqLogger, d.client)
+	if veleroContainerName == nil {
+		veleroContainerName, err = createContainer(d.Context, d.client)
+	}
+	return instance.StatusUpdate(reqLogger, d.KubeClient)
 }
 
 // StorageExists checks that the blob exists, and that we have access to it.

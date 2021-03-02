@@ -12,15 +12,19 @@ var (
 	veleroContainerName = "managed-velero-backup-container"
 )
 
-func checkExistingContainer(ctx context.Context, reqLogger logr.Logger, client *OpenStackClient, containerName string) bool {
+func checkExistingContainer(ctx context.Context, reqLogger logr.Logger, client *OpenStackClient) *string {
 
-	Container := containers.Get(&client.serviceClient, veleroContainerName, nil)
+	metadata, err := containers.Get(&client.serviceClient, veleroContainerName, nil).ExtractMetadata()
 
-	if Container.Result.Err != nil {
-		return false
+	// return empty string incase of error or empty metadata
+	if err != nil {
+		reqLogger.Error(err, err.Error())
+		return nil
+	} else if len(metadata) == 0 {
+		reqLogger.Info("Container not found")
+		return nil
 	}
-
-	return true
+	return &veleroContainerName
 }
 
 func createContainer(ctx context.Context, client *OpenStackClient) (*string, error) {

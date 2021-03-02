@@ -51,18 +51,18 @@ func TestSetInstanceBucketName(t *testing.T) {
 			}
 
 			// if the instace status' bucket name doesn't match the specified bucket name but is supposed to
-			if (instance.Status.StorageBucket.Name != tt.bucketName) && tt.matchBucketName {
-				t.Errorf("setInstanceBucketName() bucket name: %s, expected %s", instance.Status.StorageBucket.Name, tt.bucketName)
+			if (instance.Status.AWS.StorageBucket.Name != tt.bucketName) && tt.matchBucketName {
+				t.Errorf("setInstanceBucketName() bucket name: %s, expected %s", instance.Status.AWS.StorageBucket.Name, tt.bucketName)
 			}
 
 			// if the instance status' bucket name matches the specified bucket name but isn't supposed to
-			if (instance.Status.StorageBucket.Name == tt.bucketName) && !tt.matchBucketName {
-				t.Errorf("setInstanceBucketName() bucket name: %s, didn't expect %s", instance.Status.StorageBucket.Name, tt.bucketName)
+			if (instance.Status.AWS.StorageBucket.Name == tt.bucketName) && !tt.matchBucketName {
+				t.Errorf("setInstanceBucketName() bucket name: %s, didn't expect %s", instance.Status.AWS.StorageBucket.Name, tt.bucketName)
 			}
 
 			// if the instance status' bucket name doesn't have the expected prefix
-			if (!strings.HasPrefix(instance.Status.StorageBucket.Name, constants.StorageBucketPrefix)) && !tt.matchBucketName {
-				t.Errorf("setInstanceBucketName() bucket name: %s, didn't have prefix %s", instance.Status.StorageBucket.Name, constants.StorageBucketPrefix)
+			if (!strings.HasPrefix(instance.Status.AWS.StorageBucket.Name, constants.StorageBucketPrefix)) && !tt.matchBucketName {
+				t.Errorf("setInstanceBucketName() bucket name: %s, didn't have prefix %s", instance.Status.AWS.StorageBucket.Name, constants.StorageBucketPrefix)
 			}
 		})
 	}

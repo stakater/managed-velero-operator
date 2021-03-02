@@ -47,7 +47,7 @@ const (
 	openstackUsername         = "os_username"
 	openstackPassword         = "os_password"
 	openstackTenantID         = "os_tenant_id"
-	openstackRegion           = "os_region"
+	openstackRegion           = "os_region_name"
 
 	veleroImageRegistry   = "docker.io/velero"
 	veleroImageRegistryCN = "registry.docker-cn.com/velero"
